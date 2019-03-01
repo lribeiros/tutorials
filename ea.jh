@@ -1,0 +1,84 @@
+enum YesNo {
+    N, 
+    S
+}
+entity DataLoadFlow {
+	description String,
+	executionType String,
+	lastRunDate Instant,
+	updateDate Instant,
+	updateUser String 
+}
+
+entity FlowProduct {
+	idProduct String,
+	idVersion Long,
+	calculate	YesNo,
+	clearSnapshot String,
+	toCopy String,
+	updateDate Instant,
+	updateUser String
+}
+
+entity BusinessLine {
+	description String maxlength(100)
+}
+
+entity Commission {
+	description String maxlength(30),
+	sapKey String maxlength(20)
+  }
+
+entity Customer {
+	cnpj String maxlength(14),
+	sapCode String maxlength(20),
+	businessName String maxlength(100),
+	name String maxlength(100),
+    sapSyncDate Instant,
+	sapObservationInvoice String maxlength(200),  
+    entryDate Instant,
+	outDate Instant,
+    calculateProrata String maxlength(1),
+	lockDate Instant,
+	updateDate Instant,
+	updateUser String maxlength(20)
+}
+
+entity Product {
+	idProduct String,
+	idVersion Long,
+    sapSyncDate Instant,
+	description String,
+	status BigDecimal max(1),
+	updateDate Instant,
+	updateUser String maxlength(20)
+}
+
+relationship OneToOne {
+	FlowProduct{product} to Product,
+    Product{businessLine} to BusinessLine
+}
+
+// defining multiple OneToMany relationships with comments
+relationship OneToMany {
+	DataLoadFlow{flowProduct} to FlowProduct,
+    Customer{product} to Product        
+}
+
+relationship ManyToOne {
+	Customer{manager} to Customer,
+    Customer{commission} to Commission
+}
+
+// Set pagination options
+paginate Product with infinite-scroll
+paginate FlowProduct with pagination
+
+// Use Data Transfert Objects (DTO)
+// dto * with mapstruct
+
+// Set service options to all except few
+service all with serviceImpl except Customer, Commission, BusinessLine
+
+// Set an angular suffix
+ angularSuffix * with ea
